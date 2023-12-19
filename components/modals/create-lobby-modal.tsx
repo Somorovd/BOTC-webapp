@@ -3,9 +3,10 @@
 import { useLobby } from "@/hooks/use-lobbies";
 import { useModal } from "@/hooks/use-modal";
 import { useEffect, useState } from "react";
+import Dialog from "../ui/dialog";
 
 const CreateLobbyModal = () => {
-  const { onClose } = useModal();
+  const { isOpen, onClose } = useModal();
   const { addLobby } = useLobby();
   const [name, setName] = useState("");
 
@@ -26,7 +27,7 @@ const CreateLobbyModal = () => {
   }, []);
 
   return (
-    <div className="bg-white p-4">
+    <Dialog isOpen={isOpen} onClose={onClose}>
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <div className="text-lg">
           <h2>Create a new lobby!</h2>
@@ -38,13 +39,14 @@ const CreateLobbyModal = () => {
             autoFocus
             value={name}
             onChange={(e) => setName(e.target.value)}
+            className="border-black border-[1px]"
           />
         </div>
         <button className="hover:bg-slate-300 border-2 border-black">
           Create
         </button>
       </form>
-    </div>
+    </Dialog>
   );
 };
 
