@@ -1,15 +1,31 @@
 "use client";
 
 import { useLobby } from "@/hooks/use-lobbies";
+import { useScriptStore } from "@/hooks/use-scripts";
 import { ModalType, useModal } from "@/hooks/use-modal";
 import { UserButton } from "@clerk/nextjs";
 import { useUser } from "@clerk/nextjs";
 import { useRef, useEffect } from "react";
+import "./page.css";
 
 export default function Home() {
   const { user } = useUser();
   const { onOpen } = useModal();
   const { lobbies, fetchLobbies } = useLobby();
+  const { scripts, fetchScripts } = useScriptStore();
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        await fetchScripts();
+      } catch (error) {
+        console.error('Error fetching scripts:', error);
+      }
+    };
+
+    fetchData();
+  }, [fetchScripts]);
+  console.log(scripts)
 
   useEffect(() => {
     (async () => {
@@ -27,6 +43,13 @@ export default function Home() {
         }
       })
       .catch((error) => console.error("Error accessing media devices:", error));
+      return () => {
+        // Cleanup function to stop the video stream when the component unmounts
+        const stream = videoRef.current?.srcObject as MediaStream;
+        if (stream) {
+          stream.getTracks().forEach((track) => track.stop());
+        }
+      };
   }, []);
 
   const openCreateLobbyModal = () => {
@@ -66,6 +89,9 @@ export default function Home() {
             ))}
           </div>
         </div>
+        {scripts.map((script) => (
+            <img id='test' key={script._id} src={script.pic_url} alt={script.name} />
+          ))}
       </div>
     </div>
   );
