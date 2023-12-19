@@ -18,7 +18,8 @@ export default function Home() {
       await fetchLobbies();
       await fetchScripts();
     })();
-  }, []);
+  }, [fetchLobbies]);
+console.log('testtt', scripts)
 
   const videoRef = useRef<HTMLVideoElement>(null);
   useEffect(() => {
@@ -76,7 +77,6 @@ export default function Home() {
             ))}
           </div>
         </div>
-
       </div>
     </div>
   );
