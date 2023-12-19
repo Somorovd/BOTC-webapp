@@ -20,8 +20,6 @@ export default function Home() {
     })();
   }, []);
 
-  console.log("Scripts: ", scripts);
-
   const videoRef = useRef<HTMLVideoElement>(null);
   useEffect(() => {
     navigator.mediaDevices

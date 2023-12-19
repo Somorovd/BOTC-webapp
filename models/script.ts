@@ -11,6 +11,7 @@ const scriptSchema = new Schema<Script>({
   picUrl: { type: String, required: true },
 });
 
-const Script = mongoose.models.Script || mongoose.model("Script", scriptSchema);
+const ScriptModel =
+  mongoose.models.Script || mongoose.model("Script", scriptSchema);
 
-export default Script;
+export default ScriptModel;
