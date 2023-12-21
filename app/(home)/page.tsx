@@ -8,7 +8,7 @@ import { useUser } from "@clerk/nextjs";
 import { useRef, useEffect } from "react";
 import "./page.css";
 
-export default function Home() {
+export default function Home () {
   const { user } = useUser();
   const { onOpen } = useModal();
   const { lobbies, fetchLobbies } = useLobby();

@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import ScriptModel from '@/models/script';
+import ScriptModel from "../script"
 
 const connectMongoDB = async () => {
   try {

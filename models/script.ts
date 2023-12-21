@@ -1,5 +1,5 @@
 // models/script.ts
-import { Schema, model, Document } from 'mongoose';
+import mongoose,{ Schema, model, Document } from 'mongoose';
 
 export interface Script extends Document {
   name: string;
@@ -11,9 +11,10 @@ const scriptSchema = new Schema<Script>({
   pic_url: { type: String, required: true },
 });
 
-const ScriptModel = model<Script>('Script', scriptSchema);
+// const ScriptModel = model<Script>('Script', scriptSchema);
+const Script = mongoose.models.Script || mongoose.model("Script", scriptSchema);
 
-export default ScriptModel;
+export default Script;
 
 // const script1 = new Script({
 //     name: 'Test Script',
