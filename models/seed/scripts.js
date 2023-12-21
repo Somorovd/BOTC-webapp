@@ -38,24 +38,28 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var mongoose_1 = require("mongoose");
 var script_1 = require("../script");
+var dotenv = require("dotenv");
+// Load environment variables from a file named .env
+dotenv.config();
+// console.log('wertwertwertwertwertwertwertwertwertwertwert',process.env.MONGODB_URI)
 var connectMongoDB = function () { return __awaiter(void 0, void 0, void 0, function () {
     var seedData_1, seedDataToMongoDB, error_1;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
                 _a.trys.push([0, 3, 4, 5]);
-                return [4 /*yield*/, mongoose_1.default.connect(process.env.MONGODB_URI)];
+                return [4 /*yield*/, mongoose_1.default.connect("mongodb+srv://matthewryanboyer123:8eKlQADKnVw2pjdn@clusterbotc.nmimvsn.mongodb.net/BOTC-HACKATHON")];
             case 1:
                 _a.sent();
                 console.log('Connected to MongoDB');
                 seedData_1 = [
                     {
                         name: 'Test Script 1',
-                        pic_url: 'https://example.com/image1.jpg',
+                        picUrl: 'https://example.com/image1.jpg',
                     },
                     {
                         name: 'Test Script 2',
-                        pic_url: 'https://example.com/image2.jpg',
+                        picUrl: 'https://example.com/image2.jpg',
                     },
                     // Add more seed data as needed
                 ];
@@ -98,4 +102,15 @@ var connectMongoDB = function () { return __awaiter(void 0, void 0, void 0, func
         }
     });
 }); };
-exports.default = connectMongoDB;
+// Wrap in an async function and call it to avoid issues with top-level await in TypeScript
+var runSeed = function () { return __awaiter(void 0, void 0, void 0, function () {
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0: return [4 /*yield*/, connectMongoDB()];
+            case 1:
+                _a.sent();
+                return [2 /*return*/];
+        }
+    });
+}); };
+runSeed();

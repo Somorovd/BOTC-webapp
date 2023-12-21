@@ -1,20 +1,27 @@
 import mongoose from 'mongoose';
-import ScriptModel from "../script"
+import ScriptModel from '../script';
+import * as dotenv from 'dotenv';
 
+
+// Load environment variables from a file named .env
+dotenv.config();
+
+// console.log('wertwertwertwertwertwertwertwertwertwertwert',process.env.MONGODB_URI)
 const connectMongoDB = async () => {
   try {
-    await mongoose.connect(process.env.MONGODB_URI!);
+    //Hardcoded!!!!!! NEED TO FIX!!!!!!!!!!!
+    await mongoose.connect("mongodb+srv://matthewryanboyer123:8eKlQADKnVw2pjdn@clusterbotc.nmimvsn.mongodb.net/BOTC-HACKATHON");
     console.log('Connected to MongoDB');
 
     // Seed data
     const seedData = [
       {
         name: 'Test Script 1',
-        pic_url: 'https://example.com/image1.jpg',
+        picUrl: 'https://example.com/image1.jpg',
       },
       {
         name: 'Test Script 2',
-        pic_url: 'https://example.com/image2.jpg',
+        picUrl: 'https://example.com/image2.jpg',
       },
       // Add more seed data as needed
     ];
@@ -39,4 +46,10 @@ const connectMongoDB = async () => {
   }
 };
 
-export default connectMongoDB;
+// Wrap in an async function and call it to avoid issues with top-level await in TypeScript
+const runSeed = async () => {
+  await connectMongoDB();
+};
+
+runSeed();
+export {};
