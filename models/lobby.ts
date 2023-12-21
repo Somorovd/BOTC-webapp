@@ -1,4 +1,4 @@
-import mongoose, { Schema, Types } from "mongoose";
+import mongoose, { Schema } from "mongoose";
 
 export type Lobby = {
   _id: string;
@@ -11,6 +11,7 @@ const lobbySchema = new Schema<Lobby>({
   inviteCode: { type: String, required: true },
 });
 
-const Lobby = mongoose.models.Lobby || mongoose.model("Lobby", lobbySchema);
+const LobbyModel =
+  mongoose.models.Lobby || mongoose.model("Lobby", lobbySchema);
 
-export default Lobby;
+export default LobbyModel;

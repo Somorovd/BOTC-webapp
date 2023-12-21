@@ -1,12 +1,5 @@
-// hooks/use-scripts.js
-import create from 'zustand';
-
-
-interface Script {
-  _id: string;
-  name: string;
-  pic_url: string;
-}
+import { type Script } from "@/models/script";
+import { create } from "zustand";
 
 interface ScriptStore {
   scripts: Script[];
@@ -16,12 +9,10 @@ interface ScriptStore {
 export const useScriptStore = create<ScriptStore>((set) => ({
   scripts: [],
   fetchScripts: async () => {
-    try {
-      const res = await fetch('/api/scripts');
+    const res = await fetch("/api/scripts");
+    if (res.ok) {
       const { scripts } = await res.json();
       set({ scripts });
-    } catch (error) {
-      console.error('Error fetching scripts:', error);
     }
   },
 }));

@@ -6,7 +6,6 @@ import { ModalType, useModal } from "@/hooks/use-modal";
 import { UserButton } from "@clerk/nextjs";
 import { useUser } from "@clerk/nextjs";
 import { useRef, useEffect } from "react";
-import "./page.css";
 
 export default function Home () {
   const { user } = useUser();
@@ -15,23 +14,12 @@ export default function Home () {
   const { scripts, fetchScripts } = useScriptStore();
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        await fetchScripts();
-      } catch (error) {
-        console.error('Error fetching scripts:', error);
-      }
-    };
-
-    fetchData();
-  }, [fetchScripts]);
-  console.log(scripts)
-
-  useEffect(() => {
     (async () => {
       await fetchLobbies();
+      await fetchScripts();
     })();
-  }, []);
+  }, [fetchLobbies]);
+console.log('testtt', scripts)
 
   const videoRef = useRef<HTMLVideoElement>(null);
   useEffect(() => {
@@ -43,13 +31,13 @@ export default function Home () {
         }
       })
       .catch((error) => console.error("Error accessing media devices:", error));
-      return () => {
-        // Cleanup function to stop the video stream when the component unmounts
-        const stream = videoRef.current?.srcObject as MediaStream;
-        if (stream) {
-          stream.getTracks().forEach((track) => track.stop());
-        }
-      };
+    return () => {
+      // Cleanup function to stop the video stream when the component unmounts
+      const stream = videoRef.current?.srcObject as MediaStream;
+      if (stream) {
+        stream.getTracks().forEach((track) => track.stop());
+      }
+    };
   }, []);
 
   const openCreateLobbyModal = () => {
@@ -82,16 +70,13 @@ export default function Home () {
             {lobbies.map((lobby, i) => (
               <p
                 key={lobby._id}
-                className="p-2 border-[1px] border-slate-500 mb-1 hover:bg-slate-400"
+                className="p-2 border-[1px] border-slate-500 mb-1 hover:bg-slate-400 "
               >
                 {lobby.name}
               </p>
             ))}
           </div>
         </div>
-        {scripts.map((script) => (
-            <img id='test' key={script._id} src={script.pic_url} alt={script.name} />
-          ))}
       </div>
     </div>
   );
