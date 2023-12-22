@@ -39,27 +39,43 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var mongoose_1 = require("mongoose");
 var script_1 = require("../script");
 var dotenv = require("dotenv");
+var roletokens_1 = require("../roletokens");
 // Load environment variables from a file named .env
 dotenv.config();
 // console.log('wertwertwertwertwertwertwertwertwertwertwert',process.env.MONGODB_URI)
 var connectMongoDB = function () { return __awaiter(void 0, void 0, void 0, function () {
-    var seedData_1, seedDataToMongoDB, error_1;
+    var seedData_1, seedData1_1, seedDataToMongoDB, error_1;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
                 _a.trys.push([0, 3, 4, 5]);
+                //Hardcoded!!!!!! NEED TO FIX!!!!!!!!!!!
                 return [4 /*yield*/, mongoose_1.default.connect("mongodb+srv://matthewryanboyer123:8eKlQADKnVw2pjdn@clusterbotc.nmimvsn.mongodb.net/BOTC-HACKATHON")];
             case 1:
+                //Hardcoded!!!!!! NEED TO FIX!!!!!!!!!!!
                 _a.sent();
                 console.log('Connected to MongoDB');
                 seedData_1 = [
                     {
                         name: 'Test Script 1',
-                        picUrl: 'https://example.com/image1.jpg',
+                        picUrl: 'https://preview.redd.it/various-custom-full-scripts-7-15-players-3-core-14-custom-v0-77x00glowt691.jpg?width=2550&format=pjpg&auto=webp&s=7bc2094b089aae1840fbc263c35a1e7feaf190f3',
                     },
                     {
                         name: 'Test Script 2',
-                        picUrl: 'https://example.com/image2.jpg',
+                        picUrl: 'https://preview.redd.it/first-script-feedback-v0-mo2o6xczh11a1.png?auto=webp&s=09a7da2e66731c9da1a4e46a84c6ed809d32b392',
+                    },
+                    // Add more seed data as needed
+                ];
+                seedData1_1 = [
+                    {
+                        name: 'Test RoleToken 1',
+                        description: "this role does a bunch of cool stuff and you save everyone",
+                        picUrl: 'https://i.redd.it/q54664kmnyq91.jpg',
+                    },
+                    {
+                        name: 'Test RoleToken 2',
+                        description: "you do nothing all day everyday but sit in your chair and dont talk to anyone ever!!!",
+                        picUrl: 'https://i.redd.it/m5lhwp2h74rb1.png',
                     },
                     // Add more seed data as needed
                 ];
@@ -68,20 +84,26 @@ var connectMongoDB = function () { return __awaiter(void 0, void 0, void 0, func
                     return __generator(this, function (_a) {
                         switch (_a.label) {
                             case 0:
-                                _a.trys.push([0, 3, , 4]);
+                                _a.trys.push([0, 5, , 6]);
                                 return [4 /*yield*/, script_1.default.deleteMany()];
                             case 1:
                                 _a.sent(); // Remove existing data
                                 return [4 /*yield*/, script_1.default.insertMany(seedData_1)];
                             case 2:
                                 _a.sent(); // Insert new seed data
-                                console.log('Seed data added successfully');
-                                return [3 /*break*/, 4];
+                                return [4 /*yield*/, roletokens_1.default.deleteMany()];
                             case 3:
+                                _a.sent();
+                                return [4 /*yield*/, roletokens_1.default.insertMany(seedData1_1)];
+                            case 4:
+                                _a.sent();
+                                console.log('Seed data added successfully');
+                                return [3 /*break*/, 6];
+                            case 5:
                                 error_2 = _a.sent();
                                 console.error('Error seeding data:', error_2);
-                                return [3 /*break*/, 4];
-                            case 4: return [2 /*return*/];
+                                return [3 /*break*/, 6];
+                            case 6: return [2 /*return*/];
                         }
                     });
                 }); };

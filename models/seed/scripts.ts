@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import ScriptModel from '../script';
 import * as dotenv from 'dotenv';
+import RoleToken from '../roletokens';
 
 
 // Load environment variables from a file named .env
@@ -17,11 +18,24 @@ const connectMongoDB = async () => {
     const seedData = [
       {
         name: 'Test Script 1',
-        picUrl: 'https://example.com/image1.jpg',
+        picUrl: 'https://preview.redd.it/various-custom-full-scripts-7-15-players-3-core-14-custom-v0-77x00glowt691.jpg?width=2550&format=pjpg&auto=webp&s=7bc2094b089aae1840fbc263c35a1e7feaf190f3',
       },
       {
         name: 'Test Script 2',
-        picUrl: 'https://example.com/image2.jpg',
+        picUrl: 'https://preview.redd.it/first-script-feedback-v0-mo2o6xczh11a1.png?auto=webp&s=09a7da2e66731c9da1a4e46a84c6ed809d32b392',
+      },
+      // Add more seed data as needed
+    ];
+    const seedData1 = [
+      {
+        name: 'Test RoleToken 1',
+        description: "this role does a bunch of cool stuff and you save everyone",
+        picUrl: 'https://i.redd.it/q54664kmnyq91.jpg',
+      },
+      {
+        name: 'Test RoleToken 2',
+        description: "you do nothing all day everyday but sit in your chair and dont talk to anyone ever!!!",
+        picUrl: 'https://i.redd.it/m5lhwp2h74rb1.png',
       },
       // Add more seed data as needed
     ];
@@ -31,6 +45,8 @@ const connectMongoDB = async () => {
       try {
         await ScriptModel.deleteMany(); // Remove existing data
         await ScriptModel.insertMany(seedData); // Insert new seed data
+        await RoleToken.deleteMany();
+        await RoleToken.insertMany(seedData1);
         console.log('Seed data added successfully');
       } catch (error) {
         console.error('Error seeding data:', error);
