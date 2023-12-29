@@ -1,16 +1,13 @@
 import mongoose, { Schema } from "mongoose";
 
 export type Lobby = {
-  _id: string;
   name: string;
   inviteCode: string;
-  messagesId: number;
 };
 
 const lobbySchema = new Schema<Lobby>({
   name: { type: String, required: true },
-  inviteCode: { type: String, required: true },
-  messagesId: {type:Number}
+  inviteCode: { type: String },//TOOK OUT REQUIRED TRUE FOR TESTING
 });
 
 const LobbyModel =

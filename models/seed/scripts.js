@@ -40,11 +40,13 @@ var mongoose_1 = require("mongoose");
 var script_1 = require("../script");
 var dotenv = require("dotenv");
 var roletokens_1 = require("../roletokens");
+var roomuser_1 = require("../roomuser");
+var lobby_1 = require("../lobby");
 // Load environment variables from a file named .env
 dotenv.config();
 // console.log('wertwertwertwertwertwertwertwertwertwertwert',process.env.MONGODB_URI)
 var connectMongoDB = function () { return __awaiter(void 0, void 0, void 0, function () {
-    var seedData_1, seedData1_1, seedDataToMongoDB, error_1;
+    var lobbySeedData_1, seedData_1, seedData1_1, roomuserSeedData_1, seedDataToMongoDB, error_1;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -55,6 +57,13 @@ var connectMongoDB = function () { return __awaiter(void 0, void 0, void 0, func
                 //Hardcoded!!!!!! NEED TO FIX!!!!!!!!!!!
                 _a.sent();
                 console.log('Connected to MongoDB');
+                lobbySeedData_1 = [
+                    {
+                        name: 'Test Lobby',
+                        inviteCode: "test",
+                        messagesId: 5
+                    }
+                ];
                 seedData_1 = [
                     {
                         name: 'Test Script 1',
@@ -64,7 +73,6 @@ var connectMongoDB = function () { return __awaiter(void 0, void 0, void 0, func
                         name: 'Test Script 2',
                         picUrl: 'https://preview.redd.it/first-script-feedback-v0-mo2o6xczh11a1.png?auto=webp&s=09a7da2e66731c9da1a4e46a84c6ed809d32b392',
                     },
-                    // Add more seed data as needed
                 ];
                 seedData1_1 = [
                     {
@@ -77,33 +85,53 @@ var connectMongoDB = function () { return __awaiter(void 0, void 0, void 0, func
                         description: "you do nothing all day everyday but sit in your chair and dont talk to anyone ever!!!",
                         picUrl: 'https://i.redd.it/m5lhwp2h74rb1.png',
                     },
-                    // Add more seed data as needed
+                ];
+                roomuserSeedData_1 = [
+                    {
+                        username: 'Daniel',
+                        roletokenId: {},
+                        mainroomId: {},
+                        isStoryTeller: true,
+                        notes: 'test string notes'
+                    }
                 ];
                 seedDataToMongoDB = function () { return __awaiter(void 0, void 0, void 0, function () {
                     var error_2;
                     return __generator(this, function (_a) {
                         switch (_a.label) {
                             case 0:
-                                _a.trys.push([0, 5, , 6]);
+                                _a.trys.push([0, 9, , 10]);
                                 return [4 /*yield*/, script_1.default.deleteMany()];
                             case 1:
                                 _a.sent(); // Remove existing data
-                                return [4 /*yield*/, script_1.default.insertMany(seedData_1)];
-                            case 2:
-                                _a.sent(); // Insert new seed data
                                 return [4 /*yield*/, roletokens_1.default.deleteMany()];
+                            case 2:
+                                _a.sent();
+                                return [4 /*yield*/, lobby_1.default.deleteMany()];
                             case 3:
                                 _a.sent();
-                                return [4 /*yield*/, roletokens_1.default.insertMany(seedData1_1)];
+                                return [4 /*yield*/, roomuser_1.default.deleteMany()];
                             case 4:
                                 _a.sent();
-                                console.log('Seed data added successfully');
-                                return [3 /*break*/, 6];
+                                return [4 /*yield*/, script_1.default.insertMany(seedData_1)];
                             case 5:
+                                _a.sent(); // Insert new seed data
+                                return [4 /*yield*/, roletokens_1.default.insertMany(seedData1_1)];
+                            case 6:
+                                _a.sent();
+                                return [4 /*yield*/, lobby_1.default.insertMany(lobbySeedData_1)];
+                            case 7:
+                                _a.sent();
+                                return [4 /*yield*/, roomuser_1.default.insertMany(roomuserSeedData_1)];
+                            case 8:
+                                _a.sent();
+                                console.log('Seed data added successfully');
+                                return [3 /*break*/, 10];
+                            case 9:
                                 error_2 = _a.sent();
                                 console.error('Error seeding data:', error_2);
-                                return [3 /*break*/, 6];
-                            case 6: return [2 /*return*/];
+                                return [3 /*break*/, 10];
+                            case 10: return [2 /*return*/];
                         }
                     });
                 }); };

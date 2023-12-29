@@ -1,13 +1,13 @@
-import mongoose, {Schema} from "mongoose";
+import mongoose, {Schema,Types} from "mongoose";
 
 export type Seat = {
-    mainroomId: number,
-    userId: number
+    lobbyId: object,
+    userId: object
 }
 
 const seatSchema = new Schema<Seat>({
-    mainroomId: { type: Number, required: true, unique: true },
-    userId: { type: Number, required: true },
+    lobbyId: { type: mongoose.Types.ObjectId, ref:"Lobby" },
+    userId: { type: mongoose.Types.ObjectId, ref:"RoomUser" },
   });
 
   const Seat = mongoose.models.Seat || mongoose.model("Seat", seatSchema);

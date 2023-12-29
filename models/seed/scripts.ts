@@ -2,6 +2,8 @@ import mongoose from 'mongoose';
 import ScriptModel from '../script';
 import * as dotenv from 'dotenv';
 import RoleToken from '../roletokens';
+import RoomUser from '../roomuser';
+import LobbyModel from '../lobby';
 
 
 // Load environment variables from a file named .env
@@ -14,7 +16,14 @@ const connectMongoDB = async () => {
     await mongoose.connect("mongodb+srv://matthewryanboyer123:8eKlQADKnVw2pjdn@clusterbotc.nmimvsn.mongodb.net/BOTC-HACKATHON");
     console.log('Connected to MongoDB');
 
-    // Seed data
+    const lobbySeedData = [
+      {
+        name: 'Test Lobby',
+        inviteCode: "test",
+        messagesId: 5
+      }
+    ];
+
     const seedData = [
       {
         name: 'Test Script 1',
@@ -24,7 +33,6 @@ const connectMongoDB = async () => {
         name: 'Test Script 2',
         picUrl: 'https://preview.redd.it/first-script-feedback-v0-mo2o6xczh11a1.png?auto=webp&s=09a7da2e66731c9da1a4e46a84c6ed809d32b392',
       },
-      // Add more seed data as needed
     ];
     const seedData1 = [
       {
@@ -37,16 +45,28 @@ const connectMongoDB = async () => {
         description: "you do nothing all day everyday but sit in your chair and dont talk to anyone ever!!!",
         picUrl: 'https://i.redd.it/m5lhwp2h74rb1.png',
       },
-      // Add more seed data as needed
     ];
+    const roomuserSeedData = [
+      {
+        username:'Daniel',
+        roletokenId:{},
+        mainroomId:{},
+        isStoryTeller: true,
+        notes:'test string notes'
+      }
+    ]
 
     // Function to seed data
     const seedDataToMongoDB = async () => {
       try {
         await ScriptModel.deleteMany(); // Remove existing data
-        await ScriptModel.insertMany(seedData); // Insert new seed data
         await RoleToken.deleteMany();
+        await LobbyModel.deleteMany();
+        await RoomUser.deleteMany();
+        await ScriptModel.insertMany(seedData); // Insert new seed data
         await RoleToken.insertMany(seedData1);
+        await LobbyModel.insertMany(lobbySeedData);
+        await RoomUser.insertMany(roomuserSeedData);
         console.log('Seed data added successfully');
       } catch (error) {
         console.error('Error seeding data:', error);

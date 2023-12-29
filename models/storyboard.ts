@@ -1,13 +1,13 @@
 import mongoose, { Schema } from "mongoose";
 
 export type StoryBoard = {
-  mainroomId: number;
-  roleTokenIds: number[];
+  lobbyId: object,
+  roleTokenIds: [object],
 };
 
 const storyBoardSchema = new Schema<StoryBoard>({
-    mainroomId: { type: Number, required: true },
-    roleTokenIds: { type: [Number], required: true },
+  lobbyId: { type: mongoose.Types.ObjectId, ref:"Lobby" },
+    roleTokenIds: [{ type: mongoose.Types.ObjectId, ref:"RoleToken" }],
 });
 
 const StoryBoard =

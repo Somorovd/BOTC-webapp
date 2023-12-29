@@ -1,17 +1,18 @@
 import mongoose, { Schema } from "mongoose";
 
 export type RoomUser = {
+  lobbyId: object,
   username: string;
-  roleTokenId: number;
-  mainroomId: number;
+  roleTokenId: object;
+  mainroomId: object;
   isStoryTeller: boolean;
   notes: string;
 };
 
 const roomUserSchema = new Schema<RoomUser>({
+  lobbyId: { type: mongoose.Types.ObjectId, ref:"Lobby" },
   username: { type: String, required: true },
-  roleTokenId: {type:Number},
-  mainroomId: {type:Number},
+  roleTokenId: {type:mongoose.Types.ObjectId, ref:"RoleToken"},
   isStoryTeller: {type:Boolean},
   notes: {type:String}
 });

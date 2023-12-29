@@ -2,11 +2,13 @@
 import mongoose,{ Schema, model, Document } from 'mongoose';
 
 export type Script = {
+  lobbyId: object,
   name: string;
   picUrl: string;
 };
 
 const scriptSchema = new Schema<Script>({
+  lobbyId: { type: mongoose.Types.ObjectId, ref:"Lobby" },
   name: { type: String, required: true, unique: true },
   picUrl: { type: String, required: true },
 });

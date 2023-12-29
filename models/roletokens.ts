@@ -1,18 +1,18 @@
-import mongoose, {Schema} from "mongoose";
+import mongoose, {Schema,Types} from "mongoose";
 
 export type RoleToken = {
+    lobbyId: object,
     name: string,
     description: string,
-    user_id: number,
-    status: string,
+    status: boolean,
     picUrl: string
 }
 
 const roleTokenSchema = new Schema<RoleToken>({
+    lobbyId: { type: mongoose.Types.ObjectId, ref:"Lobby" },
     name: { type: String, required: true, unique: true },
     description: { type: String, required: true },
-    user_id: {type: Number},
-    status: {type: String},
+    status: {type: Boolean},
     picUrl: {type: String}
   });
 
