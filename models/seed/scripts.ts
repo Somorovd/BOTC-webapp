@@ -23,7 +23,6 @@ const connectMongoDB = async () => {
         messagesId: 5
       }
     ];
-
     const seedData = [
       {
         name: 'Test Script 1',
