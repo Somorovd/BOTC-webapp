@@ -7,7 +7,7 @@ import { UserButton } from "@clerk/nextjs";
 import { useUser } from "@clerk/nextjs";
 import { useRef, useEffect } from "react";
 
-export default function Home () {
+export default function Home() {
   const { user } = useUser();
   const { onOpen } = useModal();
   const { lobbies, fetchLobbies } = useLobby();
@@ -19,7 +19,7 @@ export default function Home () {
       await fetchScripts();
     })();
   }, [fetchLobbies]);
-console.log('testtt', scripts)
+  console.log("testtt", scripts);
 
   const videoRef = useRef<HTMLVideoElement>(null);
   useEffect(() => {
@@ -69,7 +69,7 @@ console.log('testtt', scripts)
           <div>
             {lobbies.map((lobby, i) => (
               <p
-                key={lobby._id}
+                key={`lobby-${i}`}
                 className="p-2 border-[1px] border-slate-500 mb-1 hover:bg-slate-400 "
               >
                 {lobby.name}

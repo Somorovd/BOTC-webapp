@@ -1,24 +1,35 @@
 "use client";
 
-import { useLobby } from "@/hooks/use-lobbies";
-import { useScriptStore } from "@/hooks/use-scripts";
-import { ModalType, useModal } from "@/hooks/use-modal";
-import { UserButton } from "@clerk/nextjs";
-import { useUser } from "@clerk/nextjs";
-import { useRef, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Seats from "@/components/seats";
 
 type Position = {
-  x:number,
-  y:number
-}
+  x: number;
+  y: number;
+};
 
 export default function Lobby({ params }: { params: { invitecode: string } }) {
+  const [windowSize, setWindowSize] = useState({ width: 0, height: 0 });
+  const lobbyConfig = { maxUsers: 12 };
 
-  const lobbyConfig = { maxUsers: 8 }
-  const [windowSize, setWindowSize] = useState({width:0,height:0});
+  useEffect(() => {
+    function handleResize() {
+      setWindowSize({
+        width: window.innerWidth,
+        height: window.innerHeight,
+      });
+    }
 
-  function arrangeObjectsInCircle(numObjects:number, radius:number):Position[] {
+    window.addEventListener("resize", handleResize);
+    handleResize();
+
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  function arrangeObjectsInCircle(
+    numObjects: number,
+    radius: number
+  ): Position[] {
     const centerX = windowSize.width / 2;
     const centerY = windowSize.height / 2;
     const angleIncrement = (2 * Math.PI) / numObjects;
@@ -35,37 +46,29 @@ export default function Lobby({ params }: { params: { invitecode: string } }) {
     return positions;
   }
 
-  useEffect(() => {
-    function handleResize() {
-      // Set window width/height to state
-      setWindowSize({
-        width: window.innerWidth,
-        height: window.innerHeight,
-      });
-    }
+  const ringScale = 0.95;
+  const seatScale = 0.8;
 
-    // Add event listener
-    window.addEventListener("resize", handleResize);
+  const radius =
+    (0.5 * Math.min(windowSize.width, windowSize.height) * ringScale) /
+    (1 + (Math.PI * ringScale * seatScale) / lobbyConfig.maxUsers);
+  const seatSize = ((2 * Math.PI * radius) / lobbyConfig.maxUsers) * seatScale;
 
-    // Call handler right away so state gets updated with initial window size
-    handleResize();
-
-    // Remove event listener on cleanup
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
-
-  const radius = Math.min(windowSize.width, windowSize.height)/2.8;
   const seatPositions = arrangeObjectsInCircle(lobbyConfig.maxUsers, radius);
-  const seatSize = 2*Math.PI*radius/lobbyConfig.maxUsers*.9;
-
 
   return (
     <div>
       <div>My Post: {params.invitecode}</div>
       {seatPositions.map((ele, index) => {
-        console.log(index)
-        return<div className="absolute -translate-x-1/2 -translate-y-1/2"
-        style={{top:ele.y, left:ele.x}} key={index}><Seats index={index} size={seatSize} /></div>
+        return (
+          <div
+            className="absolute -translate-x-1/2 -translate-y-1/2"
+            style={{ top: ele.y, left: ele.x }}
+            key={index}
+          >
+            <Seats index={index} size={seatSize} />
+          </div>
+        );
       })}
     </div>
   );
