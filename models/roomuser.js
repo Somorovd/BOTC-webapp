@@ -1,12 +1,10 @@
 "use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
+exports.__esModule = true;
+exports.roomUserSchema = void 0;
 var mongoose_1 = require("mongoose");
-var roomUserSchema = new mongoose_1.Schema({
-    username: { type: String, required: true },
-    roleTokenId: { type: mongoose_1.default.Types.ObjectId, ref: "RoleToken" },
-    mainroomId: { type: mongoose_1.default.Types.ObjectId, ref: "Lobby" },
-    isStoryTeller: { type: Boolean },
-    notes: { type: String }
+exports.roomUserSchema = new mongoose_1.Schema({
+    // lobbyId: { type: mongoose.Types.ObjectId, ref:"Lobby" },
+    username: { type: String, required: true }
 });
-var RoomUser = mongoose_1.default.models.RoomUser || mongoose_1.default.model("RoomUser", roomUserSchema);
-exports.default = RoomUser;
+var RoomUser = mongoose_1["default"].models.RoomUser || mongoose_1["default"].model("RoomUser", exports.roomUserSchema);
+exports["default"] = RoomUser;

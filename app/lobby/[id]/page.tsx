@@ -94,7 +94,7 @@ export default function Lobby({ params }: { params: { id: string } }) {
             <Seats
               index={index}
               size={seatSize}
-              userId={index === 0 ? user?.id || "" : "random-user"}
+              seatUser={lobby.users[index] || null}
             />
           </div>
         );
