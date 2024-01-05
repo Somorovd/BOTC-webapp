@@ -6,12 +6,15 @@ import { ModalType, useModal } from "@/hooks/use-modal";
 import { UserButton } from "@clerk/nextjs";
 import { useUser } from "@clerk/nextjs";
 import { useRef, useEffect } from "react";
+import { Lobby } from "@/models/lobby";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
   const { user } = useUser();
   const { onOpen } = useModal();
   const { lobbies, fetchLobbies } = useLobby();
   const { scripts, fetchScripts } = useScriptStore();
+  const router = useRouter();
 
   useEffect(() => {
     (async () => {
@@ -19,7 +22,6 @@ export default function Home() {
       await fetchScripts();
     })();
   }, [fetchLobbies]);
-  console.log("testtt", scripts);
 
   const videoRef = useRef<HTMLVideoElement>(null);
   useEffect(() => {
@@ -42,6 +44,10 @@ export default function Home() {
 
   const openCreateLobbyModal = () => {
     onOpen(ModalType.CreateLobby);
+  };
+
+  const navigateToLobby = (lobby: Lobby) => {
+    router.push(`/lobby/${lobby._id}`);
   };
 
   return (
@@ -71,6 +77,7 @@ export default function Home() {
               <p
                 key={`lobby-${i}`}
                 className="p-2 border-[1px] border-slate-500 mb-1 hover:bg-slate-400 "
+                onClick={() => navigateToLobby(lobby)}
               >
                 {lobby.name}
               </p>

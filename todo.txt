@@ -1,0 +1,5 @@
+* () 2024-01-05 2024-01-04 add navigation to lobbies from the home screen menu @home
+* () 2024-01-05 2024-01-04 create a new lobby and navigate @create-lobby-modal
+* () 2024-01-05 2024-01-04 lobby page fetches lobby by id @lobby/[id]
+
+() 2024-01-04 switch CreateLobbyForm to reactHookForm + zod @create-lobby-modal

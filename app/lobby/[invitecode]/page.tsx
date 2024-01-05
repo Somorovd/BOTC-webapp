@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import Seats from "@/components/seats";
+import { Lobby } from "@/models/lobby";
+import { useRouter } from "next/navigation";
 
 type Position = {
   x: number;
@@ -10,7 +12,22 @@ type Position = {
 
 export default function Lobby({ params }: { params: { invitecode: string } }) {
   const [windowSize, setWindowSize] = useState({ width: 0, height: 0 });
-  const lobbyConfig = { maxUsers: 12 };
+  const [lobby, setLobby] = useState<Lobby | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const router = useRouter();
+
+  useEffect(() => {
+    fetch(`/api/lobbies/${params.invitecode}`)
+      .then((res) => res.json())
+      .then((resBody) => {
+        setLobby(resBody.lobby);
+        setIsLoading(false);
+        console.log(resBody);
+      })
+      .catch((error) => {
+        console.log(`Error fetching lobby: ${error}`);
+      });
+  }, []);
 
   useEffect(() => {
     function handleResize() {
@@ -46,15 +63,21 @@ export default function Lobby({ params }: { params: { invitecode: string } }) {
     return positions;
   }
 
+  if (!isLoading && !lobby) {
+    return router.push("/");
+  } else if (!lobby) {
+    return null;
+  }
+
   const ringScale = 0.95;
   const seatScale = 0.8;
 
   const radius =
     (0.5 * Math.min(windowSize.width, windowSize.height) * ringScale) /
-    (1 + (Math.PI * ringScale * seatScale) / lobbyConfig.maxUsers);
-  const seatSize = ((2 * Math.PI * radius) / lobbyConfig.maxUsers) * seatScale;
+    (1 + (Math.PI * ringScale * seatScale) / lobby.maxUsers);
+  const seatSize = ((2 * Math.PI * radius) / lobby.maxUsers) * seatScale;
 
-  const seatPositions = arrangeObjectsInCircle(lobbyConfig.maxUsers, radius);
+  const seatPositions = arrangeObjectsInCircle(lobby.maxUsers, radius);
 
   return (
     <div>

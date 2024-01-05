@@ -2,29 +2,54 @@
 
 import { useLobby } from "@/hooks/use-lobbies";
 import { useModal } from "@/hooks/use-modal";
-import { useEffect, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import Dialog from "../ui/dialog";
+import { useRouter } from "next/navigation";
+import { Lobby } from "@/models/lobby";
+
+type LobbyForm = {
+  name: string;
+  maxUsers: string;
+};
+
+const defaultForm: LobbyForm = {
+  name: "",
+  maxUsers: "10",
+};
 
 const CreateLobbyModal = () => {
   const { isOpen, onClose } = useModal();
   const { addLobby } = useLobby();
-  const [name, setName] = useState("");
+  const router = useRouter();
+
+  const [lobbyForm, setLobbyForm] = useState<LobbyForm>({ ...defaultForm });
+
+  useEffect(() => {
+    if (isOpen) {
+      setLobbyForm({ ...defaultForm });
+    }
+  }, [isOpen]);
+
+  const handleLobbyFormChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setLobbyForm((form) => ({
+      ...form,
+      [name]: value,
+    }));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const res = await fetch("/api/lobbies", {
       method: "post",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ name }),
+      body: JSON.stringify(lobbyForm),
     });
-    const { lobby } = await res.json();
+    const { lobby } = (await res.json()) as { lobby: Lobby };
     addLobby(lobby);
     onClose();
+    router.push(`/lobby/${lobby._id}`);
   };
-
-  useEffect(() => {
-    setName("");
-  }, []);
 
   return (
     <Dialog isOpen={isOpen} onClose={onClose}>
@@ -36,10 +61,27 @@ const CreateLobbyModal = () => {
           <label htmlFor="name">Lobby Name</label>
           <input
             id="name"
+            name="name"
             autoFocus
-            value={name}
-            onChange={(e) => setName(e.target.value)}
+            value={lobbyForm?.name}
+            onChange={handleLobbyFormChange}
             className="border-black border-[1px]"
+          />
+        </div>
+        <div className="flex flex-col">
+          <label htmlFor="maxUsers">
+            Number of Players:{" "}
+            <span className="font-bold">{lobbyForm.maxUsers}</span>
+          </label>
+          <input
+            type="range"
+            id="maxUsers"
+            name="maxUsers"
+            value={lobbyForm?.maxUsers}
+            onChange={handleLobbyFormChange}
+            className="border-black border-[1px]"
+            min={5}
+            max={20}
           />
         </div>
         <button className="hover:bg-slate-300 border-2 border-black">
