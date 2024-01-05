@@ -1,0 +1,9 @@
+{
+  "$schema": "https://www.partykit.io/schema.json",
+  "name": "botc-webapp-party",
+  "main": "party/index.ts",
+  "compatibilityDate": "2024-01-05",
+  "parties": {
+    "lobby": "/party/lobby.ts"
+  }
+}
