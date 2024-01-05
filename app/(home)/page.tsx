@@ -23,25 +23,6 @@ export default function Home() {
     })();
   }, [fetchLobbies]);
 
-  const videoRef = useRef<HTMLVideoElement>(null);
-  useEffect(() => {
-    navigator.mediaDevices
-      .getUserMedia({ video: true, audio: true })
-      .then((stream) => {
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream;
-        }
-      })
-      .catch((error) => console.error("Error accessing media devices:", error));
-    return () => {
-      // Cleanup function to stop the video stream when the component unmounts
-      const stream = videoRef.current?.srcObject as MediaStream;
-      if (stream) {
-        stream.getTracks().forEach((track) => track.stop());
-      }
-    };
-  }, []);
-
   const openCreateLobbyModal = () => {
     onOpen(ModalType.CreateLobby);
   };
@@ -60,7 +41,6 @@ export default function Home() {
               <h3>Welcome, {user?.username}!</h3>
             </div>
           )}
-          <video ref={videoRef} autoPlay muted className="-scale-x-100 w-fit" />
         </div>
         <div className="h-full w-[400px]">
           <div className="flex flex-row justify-between items-center">

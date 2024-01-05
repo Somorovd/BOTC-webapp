@@ -4,25 +4,26 @@ import { useEffect, useState } from "react";
 import Seats from "@/components/seats";
 import { Lobby } from "@/models/lobby";
 import { useRouter } from "next/navigation";
+import { useUser } from "@clerk/nextjs";
 
 type Position = {
   x: number;
   y: number;
 };
 
-export default function Lobby({ params }: { params: { invitecode: string } }) {
+export default function Lobby({ params }: { params: { id: string } }) {
   const [windowSize, setWindowSize] = useState({ width: 0, height: 0 });
   const [lobby, setLobby] = useState<Lobby | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
+  const { user } = useUser();
 
   useEffect(() => {
-    fetch(`/api/lobbies/${params.invitecode}`)
+    fetch(`/api/lobbies/${params.id}`)
       .then((res) => res.json())
       .then((resBody) => {
         setLobby(resBody.lobby);
         setIsLoading(false);
-        console.log(resBody);
       })
       .catch((error) => {
         console.log(`Error fetching lobby: ${error}`);
@@ -81,15 +82,20 @@ export default function Lobby({ params }: { params: { invitecode: string } }) {
 
   return (
     <div>
-      <div>My Post: {params.invitecode}</div>
+      <div>My Post: {params.id}</div>
       {seatPositions.map((ele, index) => {
+        // user = lobby.users[index];
         return (
           <div
             className="absolute -translate-x-1/2 -translate-y-1/2"
             style={{ top: ele.y, left: ele.x }}
             key={index}
           >
-            <Seats index={index} size={seatSize} />
+            <Seats
+              index={index}
+              size={seatSize}
+              userId={index === 0 ? user?.id || "" : "random-user"}
+            />
           </div>
         );
       })}
