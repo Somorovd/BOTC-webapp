@@ -12,15 +12,15 @@ export async function POST(req: Request) {
     return Response.json({ message: "Unauthorized" }, { status: 403 });
   }
 
-  const firstUser: RoomUser = {
-    username: user.username,
-  };
+  // const firstUser: RoomUser = {
+  //   username: user.username,
+  // };
 
   const lobby = new LobbyModel({
     name,
     maxUsers: Number(maxUsers),
     inviteCode: uuidv4(),
-    users: [firstUser],
+    users: [],
   });
 
   await connectMongoDB();

@@ -5,6 +5,7 @@ import Seats from "@/components/seats";
 import { Lobby } from "@/models/lobby";
 import { useRouter } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
+import {Peer} from 'peerjs'
 
 type Position = {
   x: number;
@@ -15,8 +16,33 @@ export default function Lobby({ params }: { params: { id: string } }) {
   const [windowSize, setWindowSize] = useState({ width: 0, height: 0 });
   const [lobby, setLobby] = useState<Lobby | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [peerId, setPeerId] = useState('null');
   const router = useRouter();
   const { user } = useUser();
+  const test = 'testttttttt';
+
+  useEffect(() => {
+    const peer = new Peer(test);
+    peer.on('open', function(id) {
+    console.log('My peer ID is: ' + id);
+    setPeerId(id)
+    });
+    return (() => {
+      peer.disconnect()
+
+        // Cleanup or disconnect logic if needed
+        peer.destroy();
+
+    })
+  },[])
+
+  const call = (remotePeerId) => {
+    var getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+
+    getUserMedia({video:true}, function (mediaStream) {
+      const call = peer.call(remotePeerId, mediaStream)
+    })
+  }
 
   useEffect(() => {
     fetch(`/api/lobbies/${params.id}`)
@@ -63,6 +89,11 @@ export default function Lobby({ params }: { params: { id: string } }) {
 
     return positions;
   }
+
+// Call a peer, providing our mediaStream
+// var call = peer.call('dest-peer-id',
+// mediaStream);
+
 
   if (!isLoading && !lobby) {
     return router.push("/");

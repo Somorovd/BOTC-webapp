@@ -27,8 +27,11 @@ export default function Home() {
     onOpen(ModalType.CreateLobby);
   };
 
-  const navigateToLobby = (lobby: Lobby) => {
-    router.push(`/lobby/${lobby._id}`);
+  const navigateToLobby = async(lobby: Lobby) => {
+    const res = await fetch(`/api/lobbies/${lobby._id}/join`,{method:'PUT'});
+    if (res.ok) {
+      router.push(`/lobby/${lobby._id}`);
+    }
   };
 
   return (
