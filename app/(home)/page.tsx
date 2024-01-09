@@ -1,6 +1,6 @@
 "use client";
 
-import { useLobby } from "@/hooks/use-lobbies";
+import { useLobbies } from "@/hooks/use-lobbies";
 import { useScriptStore } from "@/hooks/use-scripts";
 import { ModalType, useModal } from "@/hooks/use-modal";
 import { UserButton } from "@clerk/nextjs";
@@ -12,7 +12,7 @@ import { useRouter } from "next/navigation";
 export default function Home() {
   const { user } = useUser();
   const { onOpen } = useModal();
-  const { lobbies, fetchLobbies } = useLobby();
+  const { lobbies, fetchLobbies } = useLobbies();
   const { scripts, fetchScripts } = useScriptStore();
   const router = useRouter();
 
@@ -27,8 +27,17 @@ export default function Home() {
     onOpen(ModalType.CreateLobby);
   };
 
-  const navigateToLobby = (lobby: Lobby) => {
-    router.push(`/lobby/${lobby._id}`);
+  const navigateToLobby = async (lobby: Lobby) => {
+    const res = await fetch(`/api/lobbies/${lobby._id}/join`, {
+      method: "put",
+      headers: {
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({ user }),
+    });
+    if (res.ok) {
+      router.push(`/lobby/${lobby._id}`);
+    }
   };
 
   return (

@@ -14,13 +14,14 @@ export async function POST(req: Request) {
 
   const firstUser: RoomUser = {
     username: user.username,
+    seat: 0,
   };
 
   const lobby = new LobbyModel({
     name,
     maxUsers: Number(maxUsers),
     inviteCode: uuidv4(),
-    users: [firstUser],
+    users: { [firstUser.username]: firstUser },
   });
 
   await connectMongoDB();

@@ -2,33 +2,77 @@
 
 import { useEffect, useState } from "react";
 import Seats from "@/components/seats";
-import { Lobby } from "@/models/lobby";
 import { useRouter } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
+import usePartySocket from "partysocket/react";
+import { PARTYKIT_HOST } from "@/app/env";
+import { EventDataMap, EventMessage, LobbyEvent } from "@/party/lobby";
+import { useLobby } from "@/hooks/use-lobby";
 
 type Position = {
   x: number;
   y: number;
 };
 
-export default function Lobby({ params }: { params: { id: string } }) {
+export default function LobbyPage({ params }: { params: { id: string } }) {
+  const { fetchLobby, addUser, ...lobby } = useLobby();
+
   const [windowSize, setWindowSize] = useState({ width: 0, height: 0 });
-  const [lobby, setLobby] = useState<Lobby | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
   const { user } = useUser();
 
+  const socket = usePartySocket({
+    host: PARTYKIT_HOST,
+    party: "lobby",
+    room: params.id,
+  });
+
   useEffect(() => {
-    fetch(`/api/lobbies/${params.id}`)
-      .then((res) => res.json())
-      .then((resBody) => {
-        setLobby(resBody.lobby);
-        setIsLoading(false);
-      })
-      .catch((error) => {
-        console.log(`Error fetching lobby: ${error}`);
-      });
-  }, []);
+    const onEvent = (msg: EventMessage<any>) => {
+      switch (msg.event) {
+        case LobbyEvent.PlayerJoined:
+          const { user } = msg.data as EventDataMap[LobbyEvent.PlayerJoined];
+          addUser(user);
+      }
+    };
+
+    const onMessage = (event: WebSocketEventMap["message"]) => {
+      const msg = JSON.parse(event.data);
+
+      if (msg.type === "event") {
+        onEvent(msg);
+      }
+    };
+
+    socket.addEventListener("message", onMessage);
+  }, [socket]);
+
+  useEffect(() => {
+    if (!socket || !user || !isLoading) return;
+
+    (async () => {
+      const lobby = await fetchLobby(params.id);
+      if (!lobby) {
+        console.log("Error fetching lobby");
+        return;
+      }
+      if (!lobby.users[user.username!]) {
+        console.log("Unauthorized User in Lobby");
+        return router.push("/");
+      }
+
+      const joinEvent: EventMessage<LobbyEvent.PlayerJoined> = {
+        type: "event",
+        event: LobbyEvent.PlayerJoined,
+        data: {
+          user: lobby.users[user.username!],
+        },
+      };
+      socket.send(JSON.stringify(joinEvent));
+      setIsLoading(false);
+    })();
+  }, [socket, user]);
 
   useEffect(() => {
     function handleResize() {
@@ -79,23 +123,23 @@ export default function Lobby({ params }: { params: { id: string } }) {
   const seatSize = ((2 * Math.PI * radius) / lobby.maxUsers) * seatScale;
 
   const seatPositions = arrangeObjectsInCircle(lobby.maxUsers, radius);
+  const seatUsers = new Array(lobby.maxUsers).fill(null);
+
+  for (let user of Object.values(lobby.users)) {
+    seatUsers[user.seat] = user;
+  }
 
   return (
     <div>
       <div>My Post: {params.id}</div>
       {seatPositions.map((ele, index) => {
-        // user = lobby.users[index];
         return (
           <div
             className="absolute -translate-x-1/2 -translate-y-1/2"
             style={{ top: ele.y, left: ele.x }}
             key={index}
           >
-            <Seats
-              index={index}
-              size={seatSize}
-              seatUser={lobby.users[index] || null}
-            />
+            <Seats index={index} size={seatSize} seatUser={seatUsers[index]} />
           </div>
         );
       })}

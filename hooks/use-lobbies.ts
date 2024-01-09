@@ -1,13 +1,13 @@
 import { type Lobby } from "@/models/lobby";
 import { create } from "zustand";
 
-interface LobbyStore {
+interface LobbiesStore {
   lobbies: Lobby[];
   addLobby: (lobby: Lobby) => void;
   fetchLobbies: () => Promise<void>;
 }
 
-export const useLobby = create<LobbyStore>((set, get) => ({
+export const useLobbies = create<LobbiesStore>((set, get) => ({
   lobbies: [],
   addLobby: (lobby) => {
     const lobbies = [...get().lobbies, lobby];

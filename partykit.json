@@ -4,6 +4,6 @@
   "main": "party/index.ts",
   "compatibilityDate": "2024-01-05",
   "parties": {
-    "lobby": "/party/lobby.ts"
+    "lobby": "party/lobby.ts"
   }
 }

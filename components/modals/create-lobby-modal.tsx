@@ -1,6 +1,6 @@
 "use client";
 
-import { useLobby } from "@/hooks/use-lobbies";
+import { useLobbies } from "@/hooks/use-lobbies";
 import { useModal } from "@/hooks/use-modal";
 import { ChangeEvent, useEffect, useState } from "react";
 import Dialog from "../ui/dialog";
@@ -19,7 +19,7 @@ const defaultForm: LobbyForm = {
 
 const CreateLobbyModal = () => {
   const { isOpen, onClose } = useModal();
-  const { addLobby } = useLobby();
+  const { addLobby } = useLobbies();
   const router = useRouter();
 
   const [lobbyForm, setLobbyForm] = useState<LobbyForm>({ ...defaultForm });
