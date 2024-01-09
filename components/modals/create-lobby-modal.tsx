@@ -23,10 +23,12 @@ const CreateLobbyModal = () => {
   const router = useRouter();
 
   const [lobbyForm, setLobbyForm] = useState<LobbyForm>({ ...defaultForm });
+  const [isWaiting, setIsWaiting] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
       setLobbyForm({ ...defaultForm });
+      setIsWaiting(false);
     }
   }, [isOpen]);
 
@@ -40,15 +42,22 @@ const CreateLobbyModal = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsWaiting(true);
     const res = await fetch("/api/lobbies", {
       method: "post",
       headers: { "content-type": "application/json" },
       body: JSON.stringify(lobbyForm),
     });
-    const { lobby } = (await res.json()) as { lobby: Lobby };
-    addLobby(lobby);
-    onClose();
-    router.push(`/lobby/${lobby._id}`);
+    const { lobby }: { lobby: Lobby } = await res.json();
+
+    if (lobby) {
+      addLobby(lobby);
+      onClose();
+      router.push(`/lobby/${lobby._id}`);
+    } else {
+      console.log("Error creating lobby");
+      setIsWaiting(false);
+    }
   };
 
   return (
@@ -84,7 +93,10 @@ const CreateLobbyModal = () => {
             max={20}
           />
         </div>
-        <button className="hover:bg-slate-300 border-2 border-black">
+        <button
+          className="hover:bg-slate-300 border-2 border-black"
+          disabled={isWaiting}
+        >
           Create
         </button>
       </form>
