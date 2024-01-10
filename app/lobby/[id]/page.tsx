@@ -10,9 +10,16 @@ import { useLobby } from "@/hooks/use-lobby";
 import { LiveKitRoom } from "@livekit/components-react";
 import LobbyVideoConference from "@/components/lobby/lobby-video-conference";
 
+type LobbyCredentials = {
+  id: string;
+  name: string;
+};
+
 export default function LobbyPage({ params }: { params: { id: string } }) {
-  const { fetchLobby, addUser, ...lobby } = useLobby();
-  const { user } = useUser();
+  const { fetchLobby, addUser, removeUser } = useLobby();
+  const [lobbyCreds, setLobbyCreds] = useState<LobbyCredentials | null>(null);
+
+  const { user: self } = useUser();
   const [isLoading, setIsLoading] = useState(true);
   const [token, setToken] = useState("");
   const router = useRouter();
@@ -24,11 +31,19 @@ export default function LobbyPage({ params }: { params: { id: string } }) {
   });
 
   useEffect(() => {
+    if (!socket) return;
+
     const onEvent = (msg: EventMessage<any>) => {
       switch (msg.event) {
         case LobbyEvent.PlayerJoined:
           const { user } = msg.data as EventDataMap[LobbyEvent.PlayerJoined];
           addUser(user);
+          break;
+        case LobbyEvent.PlayerLeft:
+          const { username } = msg.data as EventDataMap[LobbyEvent.PlayerLeft];
+          console.log(`HERE ${username} LEFT`);
+          removeUser(username);
+          break;
       }
     };
 
@@ -44,15 +59,18 @@ export default function LobbyPage({ params }: { params: { id: string } }) {
   }, [socket]);
 
   useEffect(() => {
-    if (!socket || !user || !isLoading) return;
+    if (!socket || !self || !isLoading) return;
 
     (async () => {
       const lobby = await fetchLobby(params.id);
+
       if (!lobby) {
         console.log("Error fetching lobby");
         return;
       }
-      if (!lobby.users[user.username!]) {
+
+      const user = lobby.seats.find((user) => user?.username === self.username);
+      if (!user) {
         console.log("Unauthorized User in Lobby");
         return router.push("/");
       }
@@ -61,26 +79,28 @@ export default function LobbyPage({ params }: { params: { id: string } }) {
         type: "event",
         event: LobbyEvent.PlayerJoined,
         data: {
-          user: lobby.users[user.username!],
+          user: user,
         },
       };
-      socket.send(JSON.stringify(joinEvent));
+
       setIsLoading(false);
+      setLobbyCreds({ name: lobby.name, id: `${lobby._id}` });
+      socket.send(JSON.stringify(joinEvent));
     })();
-  }, [socket, user]);
+  }, [socket, self]);
 
   useEffect(() => {
-    if (!lobby) return;
+    if (!lobbyCreds || !self) return;
 
-    const room = `${lobby.name}::${lobby._id}`;
-    const name = user?.username;
+    const room = `${lobbyCreds.name}::${lobbyCreds.id}`;
+    const username = self.username;
 
     console.log("livekit room", room);
 
     (async () => {
       try {
         const resp = await fetch(
-          `/api/get-participant-token?room=${room}&username=${name}`
+          `/api/get-participant-token?room=${room}&username=${username}`
         );
         const data = await resp.json();
         setToken(data.token);
@@ -88,11 +108,11 @@ export default function LobbyPage({ params }: { params: { id: string } }) {
         console.error(e);
       }
     })();
-  }, [lobby]);
+  }, [lobbyCreds, self]);
 
-  if (!isLoading && !lobby) {
+  if (!isLoading && !lobbyCreds) {
     return router.push("/");
-  } else if (!lobby) {
+  } else if (!lobbyCreds) {
     return null;
   }
 
@@ -104,7 +124,7 @@ export default function LobbyPage({ params }: { params: { id: string } }) {
       serverUrl={process.env.NEXT_PUBLIC_LIVEKIT_URL}
       style={{ height: "100dvh" }}
     >
-      <LobbyVideoConference lobby={lobby} />
+      <LobbyVideoConference />
     </LiveKitRoom>
   );
 }

@@ -5,36 +5,22 @@ import { useTracks } from "@livekit/components-react";
 import { Track } from "livekit-client";
 import { useEffect, useState } from "react";
 import Seat from "../seat";
+import { useLobby } from "@/hooks/use-lobby";
 
 type Position = {
   x: number;
   y: number;
 };
 
-type LobbyVideoConferenceProps = {
-  lobby: Lobby;
-};
-
-export default function LobbyVideoConference({
-  lobby,
-}: LobbyVideoConferenceProps) {
+export default function LobbyVideoConference() {
   const [windowSize, setWindowSize] = useState({ width: 0, height: 0 });
-
+  const [seatPositions, setSeatPositions] = useState<Position[]>([]);
+  const [seatSize, setSeatSize] = useState(0);
+  const lobbySize = useLobby((state) => state.lobby?.maxUsers);
   const tracks = useTracks([Track.Source.Camera]);
 
-  useEffect(() => {
-    function handleResize() {
-      setWindowSize({
-        width: window.innerWidth,
-        height: window.innerHeight,
-      });
-    }
-
-    window.addEventListener("resize", handleResize);
-    handleResize();
-
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
+  const ringScale = 0.95;
+  const seatScale = 0.8;
 
   function arrangeObjectsInCircle(
     numObjects: number,
@@ -56,22 +42,47 @@ export default function LobbyVideoConference({
     return positions;
   }
 
-  const ringScale = 0.95;
-  const seatScale = 0.8;
+  useEffect(() => {
+    function handleResize() {
+      setWindowSize({
+        width: window.innerWidth,
+        height: window.innerHeight,
+      });
+    }
 
-  const radius =
-    (0.5 * Math.min(windowSize.width, windowSize.height) * ringScale) /
-    (1 + (Math.PI * ringScale * seatScale) / lobby.maxUsers);
-  const seatSize = ((2 * Math.PI * radius) / lobby.maxUsers) * seatScale;
+    window.addEventListener("resize", handleResize);
+    handleResize();
 
-  const seatPositions = arrangeObjectsInCircle(lobby.maxUsers, radius);
-  const seatUsers = new Array(lobby.maxUsers).fill(null);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
-  for (let user of Object.values(lobby.users)) {
-    seatUsers[user.seat] = user;
-  }
+  useEffect(() => {
+    if (!lobbySize) {
+      return setSeatPositions([]);
+    }
 
-  console.log("tracks", tracks);
+    const radius =
+      (0.5 * Math.min(windowSize.width, windowSize.height) * ringScale) /
+      (1 + (Math.PI * ringScale * seatScale) / lobbySize);
+
+    setSeatSize(((2 * Math.PI * radius) / lobbySize) * seatScale);
+    setSeatPositions(arrangeObjectsInCircle(lobbySize, radius));
+  }, [windowSize, lobbySize]);
+
+  // const seatUsers = new Array(lobby.maxUsers).fill(null);
+  // const seatTracks = new Array(lobby.maxUsers).fill(null);
+
+  // for (let user of Object.values(lobby.users)) {
+  //   seatUsers[user.seat] = user;
+  // }
+
+  // for (let track of tracks) {
+  //   const username = track.participant.identity;
+  //   if (!username) return;
+
+  //   seatTracks[lobby.users[username].seat] = track;
+  // }
+
   return (
     <div>
       {seatPositions.map((ele, index) => {
@@ -84,8 +95,8 @@ export default function LobbyVideoConference({
             <Seat
               index={index}
               size={seatSize}
-              seatUser={seatUsers[index]}
-              videoTrackRef={tracks[index]}
+              // seatUser={seatUsers[index]}
+              // videoTrackRef={seatTracks[index]}
             />
           </div>
         );

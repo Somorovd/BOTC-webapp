@@ -2,19 +2,22 @@ import { ObjectId } from "mongodb";
 import mongoose, { Schema } from "mongoose";
 import { RoomUser, roomUserSchema } from "./roomuser";
 
+type Seat = RoomUser | null;
+
 export type Lobby = {
   _id: ObjectId | string;
   name: string;
   inviteCode: string;
   maxUsers: number;
-  users: Record<string, RoomUser>;
+  numCurrentUsers: number;
+  seats: Seat[];
 };
 
 export const lobbySchema = new Schema<Lobby>({
   name: { type: String, required: true },
   inviteCode: { type: String, required: true },
   maxUsers: { type: Number, required: true },
-  users: { type: Map, of: roomUserSchema },
+  seats: { type: [roomUserSchema], required: true },
 });
 
 const LobbyModel =

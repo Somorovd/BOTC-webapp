@@ -1,53 +1,40 @@
 "use client";
 
+import { useLobby } from "@/hooks/use-lobby";
 import { RoomUser } from "@/models/roomuser";
-import { useUser } from "@clerk/nextjs";
 import {
   TrackReference,
-  TrackReferenceOrPlaceholder,
   VideoTrack,
+  useTracks,
 } from "@livekit/components-react";
+import { Track } from "livekit-client";
 import React, { useRef, useEffect } from "react";
 
 type SeatProps = {
   index: number;
   size: number;
-  seatUser: RoomUser | null;
-  videoTrackRef: TrackReference;
+  // seatUser: RoomUser | null;
+  // videoTrackRef: TrackReference | null;
 };
 
-const Seat = ({ index, size, seatUser, videoTrackRef }: SeatProps) => {
-  const { user: currentUser } = useUser();
+const Seat = ({ index, size /*seatUser, videoTrackRef*/ }: SeatProps) => {
+  const user = useLobby((state) => state.lobby?.seats[index]);
+  const trackRefs = useTracks([Track.Source.Camera]);
 
-  const videoRef = useRef<HTMLVideoElement>(null);
-  useEffect(() => {
-    navigator.mediaDevices
-      .getUserMedia({ video: true, audio: true })
-      .then((stream) => {
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream;
-        }
-      })
-      .catch((error) => console.error("Error accessing media devices:", error));
-    return () => {
-      // Cleanup function to stop the video stream when the component unmounts
-      const stream = videoRef.current?.srcObject as MediaStream;
-      if (stream) {
-        stream.getTracks().forEach((track) => track.stop());
-      }
-    };
-  }, []);
+  const track = trackRefs.find(
+    (trackRef) => trackRef.participant.identity === user?.username
+  );
 
   return (
     <>
-      <p>{seatUser ? seatUser.username : ""}</p>
+      <p>{user ? user.username : ""}</p>
       <div
         className="rounded-full border-2 border-black flex justify-center items-center overflow-hidden"
         style={{ width: size, height: size }}
       >
-        {videoTrackRef && (
+        {track && (
           <VideoTrack
-            trackRef={videoTrackRef}
+            trackRef={track}
             className="h-full max-w-none -scale-x-100"
           />
         )}

@@ -20,8 +20,9 @@ export async function POST(req: Request) {
   const lobby = new LobbyModel({
     name,
     maxUsers: Number(maxUsers),
+    numCurrentUsers: 1,
     inviteCode: uuidv4(),
-    users: { [firstUser.username]: firstUser },
+    seats: [firstUser, ...new Array(Number(maxUsers) - 1).fill(null)],
   });
 
   await connectMongoDB();

@@ -1,24 +1,32 @@
 import { Lobby } from "@/models/lobby";
 import { RoomUser } from "@/models/roomuser";
-import { ObjectId } from "mongodb";
 import { create } from "zustand";
 
-type LobbyStore = Lobby & {
+type LobbyStore = {
+  lobby: Lobby | null;
   fetchLobby: (id: string) => Promise<Lobby | null>;
   addUser: (user: RoomUser) => void;
+  removeUser: (user: RoomUser) => void;
 };
 
 export const useLobby = create<LobbyStore>((set, get) => ({
-  _id: "",
-  name: "",
-  inviteCode: "",
-  maxUsers: 0,
-  users: {},
+  lobby: null,
   fetchLobby: async (id) => {
     const res = await fetch(`/api/lobbies/${id}`);
     const { lobby }: { lobby: Lobby } = await res.json();
-    set({ ...lobby });
+    set({ lobby });
     return lobby || null;
   },
-  addUser: (user) => set({ users: { ...get().users, [user.username]: user } }),
+  addUser: (user) => {
+    const lobby = get().lobby;
+    if (!lobby) return;
+    lobby.seats[user.seat] = user;
+    set({ lobby });
+  },
+  removeUser: (user) => {
+    const lobby = get().lobby;
+    if (!lobby) return;
+    lobby.seats[user.seat] = null;
+    set({ lobby });
+  },
 }));

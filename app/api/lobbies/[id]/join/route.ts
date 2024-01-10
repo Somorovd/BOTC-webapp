@@ -6,7 +6,7 @@ export async function PUT(
   req: Request,
   { params }: { params: { id: string } }
 ) {
-  const { user } = await req.json();
+  const { user: joiningUser } = await req.json();
 
   await connectMongoDB();
 
@@ -16,21 +16,34 @@ export async function PUT(
     return Response.json({ message: "Lobby not found" }, { status: 404 });
   }
 
-  if (lobby.users[user.username]) {
+  const user = lobby.seats.find(
+    (user) => user?.username === joiningUser.username
+  );
+
+  if (user) {
     return Response.json({ status: 201 });
   }
 
-  const numUsers = lobby.users.size as unknown as number;
+  let openSeat = -1;
+  for (let i = 0; i < lobby.seats.length; i++) {
+    if (!lobby.seats[i]) {
+      openSeat = i;
+      break;
+    }
+  }
+
+  if (openSeat === -1) {
+    return Response.json({ message: "Lobby is full" }, { status: 401 });
+  }
+
   const newUser: RoomUser = {
-    username: user.username,
-    seat: numUsers,
+    username: joiningUser.username,
+    seat: openSeat,
   };
 
   try {
     await LobbyModel.findByIdAndUpdate(params.id, {
-      $set: {
-        [`users.${newUser.username}`]: newUser,
-      },
+      $set: { [`seats.${openSeat}`]: newUser },
     });
   } catch (e) {
     console.log("ERROR", e);
