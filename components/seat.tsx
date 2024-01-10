@@ -2,15 +2,21 @@
 
 import { RoomUser } from "@/models/roomuser";
 import { useUser } from "@clerk/nextjs";
+import {
+  TrackReference,
+  TrackReferenceOrPlaceholder,
+  VideoTrack,
+} from "@livekit/components-react";
 import React, { useRef, useEffect } from "react";
 
-type SeatsProps = {
+type SeatProps = {
   index: number;
   size: number;
   seatUser: RoomUser | null;
+  videoTrackRef: TrackReference;
 };
 
-const Seats = ({ index, size, seatUser }: SeatsProps) => {
+const Seat = ({ index, size, seatUser, videoTrackRef }: SeatProps) => {
   const { user: currentUser } = useUser();
 
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -39,17 +45,15 @@ const Seats = ({ index, size, seatUser }: SeatsProps) => {
         className="rounded-full border-2 border-black flex justify-center items-center overflow-hidden"
         style={{ width: size, height: size }}
       >
-        {seatUser && seatUser.username === currentUser?.username ? (
-          <video
-            ref={videoRef}
-            autoPlay
-            muted
-            className="-scale-x-100 max-w-none h-full"
+        {videoTrackRef && (
+          <VideoTrack
+            trackRef={videoTrackRef}
+            className="h-full max-w-none -scale-x-100"
           />
-        ) : null}
+        )}
       </div>
     </>
   );
 };
 
-export default Seats;
+export default Seat;

@@ -20,6 +20,10 @@ export type EventMessage<E extends LobbyEvent> = {
 export default class LobbyServer implements Party.Server {
   constructor(readonly party: Party.Room) {}
 
+  onConnect(connection: Party.Connection) {
+    console.log(`${connection.id} connected to ${this.party.id}`);
+  }
+
   onMessage(message: string, connection: Party.Connection) {
     this.party.broadcast(message, [connection.id]);
   }

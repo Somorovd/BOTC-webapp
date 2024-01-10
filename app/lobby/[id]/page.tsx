@@ -1,26 +1,21 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Seats from "@/components/seats";
 import { useRouter } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
 import usePartySocket from "partysocket/react";
 import { PARTYKIT_HOST } from "@/app/env";
 import { EventDataMap, EventMessage, LobbyEvent } from "@/party/lobby";
 import { useLobby } from "@/hooks/use-lobby";
-
-type Position = {
-  x: number;
-  y: number;
-};
+import { LiveKitRoom } from "@livekit/components-react";
+import LobbyVideoConference from "@/components/lobby/lobby-video-conference";
 
 export default function LobbyPage({ params }: { params: { id: string } }) {
   const { fetchLobby, addUser, ...lobby } = useLobby();
-
-  const [windowSize, setWindowSize] = useState({ width: 0, height: 0 });
-  const [isLoading, setIsLoading] = useState(true);
-  const router = useRouter();
   const { user } = useUser();
+  const [isLoading, setIsLoading] = useState(true);
+  const [token, setToken] = useState("");
+  const router = useRouter();
 
   const socket = usePartySocket({
     host: PARTYKIT_HOST,
@@ -75,38 +70,25 @@ export default function LobbyPage({ params }: { params: { id: string } }) {
   }, [socket, user]);
 
   useEffect(() => {
-    function handleResize() {
-      setWindowSize({
-        width: window.innerWidth,
-        height: window.innerHeight,
-      });
-    }
+    if (!lobby) return;
 
-    window.addEventListener("resize", handleResize);
-    handleResize();
+    const room = `${lobby.name}::${lobby._id}`;
+    const name = user?.username;
 
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
+    console.log("livekit room", room);
 
-  function arrangeObjectsInCircle(
-    numObjects: number,
-    radius: number
-  ): Position[] {
-    const centerX = windowSize.width / 2;
-    const centerY = windowSize.height / 2;
-    const angleIncrement = (2 * Math.PI) / numObjects;
-
-    const positions = [];
-
-    for (let i = 0; i < numObjects; i++) {
-      const angle = i * angleIncrement;
-      const x = Math.floor(centerX + radius * Math.cos(angle));
-      const y = Math.floor(centerY + radius * Math.sin(angle));
-      positions.push({ x, y });
-    }
-
-    return positions;
-  }
+    (async () => {
+      try {
+        const resp = await fetch(
+          `/api/get-participant-token?room=${room}&username=${name}`
+        );
+        const data = await resp.json();
+        setToken(data.token);
+      } catch (e) {
+        console.error(e);
+      }
+    })();
+  }, [lobby]);
 
   if (!isLoading && !lobby) {
     return router.push("/");
@@ -114,35 +96,15 @@ export default function LobbyPage({ params }: { params: { id: string } }) {
     return null;
   }
 
-  const ringScale = 0.95;
-  const seatScale = 0.8;
-
-  const radius =
-    (0.5 * Math.min(windowSize.width, windowSize.height) * ringScale) /
-    (1 + (Math.PI * ringScale * seatScale) / lobby.maxUsers);
-  const seatSize = ((2 * Math.PI * radius) / lobby.maxUsers) * seatScale;
-
-  const seatPositions = arrangeObjectsInCircle(lobby.maxUsers, radius);
-  const seatUsers = new Array(lobby.maxUsers).fill(null);
-
-  for (let user of Object.values(lobby.users)) {
-    seatUsers[user.seat] = user;
-  }
-
   return (
-    <div>
-      <div>My Post: {params.id}</div>
-      {seatPositions.map((ele, index) => {
-        return (
-          <div
-            className="absolute -translate-x-1/2 -translate-y-1/2"
-            style={{ top: ele.y, left: ele.x }}
-            key={index}
-          >
-            <Seats index={index} size={seatSize} seatUser={seatUsers[index]} />
-          </div>
-        );
-      })}
-    </div>
+    <LiveKitRoom
+      video={true}
+      audio={true}
+      token={token}
+      serverUrl={process.env.NEXT_PUBLIC_LIVEKIT_URL}
+      style={{ height: "100dvh" }}
+    >
+      <LobbyVideoConference lobby={lobby} />
+    </LiveKitRoom>
   );
 }
