@@ -4,7 +4,7 @@ import { Lobby } from "@/models/lobby";
 import { useTracks } from "@livekit/components-react";
 import { Track } from "livekit-client";
 import { useEffect, useState } from "react";
-import Seat from "../seat";
+import Seat from "../lobby-seat/seat";
 import { useLobby } from "@/hooks/use-lobby";
 
 type Position = {
@@ -17,7 +17,8 @@ export default function LobbyVideoConference() {
   const [seatPositions, setSeatPositions] = useState<Position[]>([]);
   const [seatSize, setSeatSize] = useState(0);
   const lobbySize = useLobby((state) => state.lobby?.maxUsers);
-  const tracks = useTracks([Track.Source.Camera]);
+
+  console.log("LobbyVideoConference rerender");
 
   const ringScale = 0.95;
   const seatScale = 0.8;
@@ -69,20 +70,6 @@ export default function LobbyVideoConference() {
     setSeatPositions(arrangeObjectsInCircle(lobbySize, radius));
   }, [windowSize, lobbySize]);
 
-  // const seatUsers = new Array(lobby.maxUsers).fill(null);
-  // const seatTracks = new Array(lobby.maxUsers).fill(null);
-
-  // for (let user of Object.values(lobby.users)) {
-  //   seatUsers[user.seat] = user;
-  // }
-
-  // for (let track of tracks) {
-  //   const username = track.participant.identity;
-  //   if (!username) return;
-
-  //   seatTracks[lobby.users[username].seat] = track;
-  // }
-
   return (
     <div>
       {seatPositions.map((ele, index) => {
@@ -92,12 +79,7 @@ export default function LobbyVideoConference() {
             style={{ top: ele.y, left: ele.x }}
             key={index}
           >
-            <Seat
-              index={index}
-              size={seatSize}
-              // seatUser={seatUsers[index]}
-              // videoTrackRef={seatTracks[index]}
-            />
+            <Seat index={index} size={seatSize} />
           </div>
         );
       })}

@@ -46,9 +46,9 @@ export async function PUT(
       $set: { [`seats.${openSeat}`]: newUser },
     });
   } catch (e) {
-    console.log("ERROR", e);
+    console.log("Error joining lobby: ", e);
     return Response.json({ message: "Error joining lobby" }, { status: 500 });
   }
 
-  return Response.json({ status: 201 });
+  return Response.json({ status: 200 });
 }

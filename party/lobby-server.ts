@@ -22,28 +22,43 @@ export type EventMessage<E extends LobbyEvent> = {
 };
 
 export default class LobbyServer implements Party.Server {
-  private users: Map<string, RoomUser> = new Map();
+  private users!: Map<string, RoomUser>;
 
-  constructor(readonly party: Party.Room) {}
+  constructor(readonly party: Party.Room) {
+    this.users = new Map();
+  }
 
   onConnect(connection: Party.Connection) {
     console.log(`${connection.id} connected to ${this.party.id}`);
   }
 
-  onClose(connection: Party.Connection) {
+  async onClose(connection: Party.Connection) {
+    const user = this.users.get(connection.id)!;
     const eventData: EventDataMap[LobbyEvent.PlayerLeft] = {
-      user: this.users.get(connection.id)!,
+      user,
     };
     const msg: EventMessage<LobbyEvent.PlayerLeft> = {
       type: "event",
       event: LobbyEvent.PlayerLeft,
       data: eventData,
     };
-    console.log("Player Left: ", eventData.user.username);
+    console.log("Player Left: ", user.username);
+
+    await fetch(
+      `${this.party.env.NEXT_PUBLIC_URL}/api/lobbies/${this.party.id}/leave`,
+      {
+        method: "put",
+        headers: {
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({ user }),
+      }
+    );
+
     this.party.broadcast(JSON.stringify(msg), [connection.id]);
   }
 
-  onMessage(message: string, connection: Party.Connection) {
+  async onMessage(message: string, connection: Party.Connection) {
     const msg: EventMessage<any> = JSON.parse(message);
 
     if (msg.event === LobbyEvent.PlayerJoined) {

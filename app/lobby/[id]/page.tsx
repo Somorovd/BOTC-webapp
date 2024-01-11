@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
 import usePartySocket from "partysocket/react";
 import { PARTYKIT_HOST } from "@/app/env";
-import { EventDataMap, EventMessage, LobbyEvent } from "@/party/lobby";
+import { EventDataMap, EventMessage, LobbyEvent } from "@/party/lobby-server";
 import { useLobby } from "@/hooks/use-lobby";
 import { LiveKitRoom } from "@livekit/components-react";
 import LobbyVideoConference from "@/components/lobby/lobby-video-conference";
@@ -35,15 +35,17 @@ export default function LobbyPage({ params }: { params: { id: string } }) {
 
     const onEvent = (msg: EventMessage<any>) => {
       switch (msg.event) {
-        case LobbyEvent.PlayerJoined:
+        case LobbyEvent.PlayerJoined: {
           const { user } = msg.data as EventDataMap[LobbyEvent.PlayerJoined];
           addUser(user);
           break;
-        case LobbyEvent.PlayerLeft:
-          const { username } = msg.data as EventDataMap[LobbyEvent.PlayerLeft];
-          console.log(`HERE ${username} LEFT`);
-          removeUser(username);
+        }
+        case LobbyEvent.PlayerLeft: {
+          const { user } = msg.data as EventDataMap[LobbyEvent.PlayerLeft];
+          console.log(`HERE ${user.username} LEFT`);
+          removeUser(user);
           break;
+        }
       }
     };
 
