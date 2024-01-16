@@ -11,10 +11,10 @@
   "dependencies": {
     "@clerk/nextjs": "^4.28.1",
     "@headlessui/react": "^1.7.17",
-    "@livekit/components-react": "^1.5.1",
+    "@livekit/components-react": "^1.5.2",
     "@livekit/components-styles": "^1.0.8",
     "dotenv": "^16.3.1",
-    "livekit-client": "^1.15.6",
+    "livekit-client": "^1.15.8",
     "livekit-server-sdk": "^1.2.7",
     "mongodb": "^6.3.0",
     "mongoose": "^8.0.3",
