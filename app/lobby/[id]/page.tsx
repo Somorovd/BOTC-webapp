@@ -21,28 +21,32 @@ export default function Lobby({ params }: { params: { id: string } }) {
   const { user } = useUser();
   const test = 'testttttttt';
 
-  useEffect(() => {
-    const peer = new Peer(test);
-    peer.on('open', function(id) {
-    console.log('My peer ID is: ' + id);
-    setPeerId(id)
-    });
-    return (() => {
-      peer.disconnect()
+  // useEffect(() => {
+  //   const peer = new Peer(test);
+  //   peer.on('open', function(id) {
+  //   console.log('My peer ID is: ' + id);
+  //   setPeerId(id)
+  //   });
+  //   return (() => {
+  //     peer.disconnect()
 
-        // Cleanup or disconnect logic if needed
-        peer.destroy();
+  //       // Cleanup or disconnect logic if needed
+  //       peer.destroy();
 
-    })
-  },[])
+  //   })
+  // },[])
 
-  const call = (remotePeerId) => {
-    var getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+  // const call = (remotePeerId) => {
+  //   var getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
 
-    getUserMedia({video:true}, function (mediaStream) {
-      const call = peer.call(remotePeerId, mediaStream)
-    })
-  }
+  //   getUserMedia({video:true}, function (mediaStream) {
+  //     const call = peer.call(remotePeerId, mediaStream)
+  //     call.on('stream', function(remoteStream) {
+  //       // `stream` is the MediaStream of the remote peer.
+  //       // Here you'd add it to an HTML video/canvas element.
+  //       });
+  //   })
+  // }
 
   useEffect(() => {
     fetch(`/api/lobbies/${params.id}`)
